@@ -126,35 +126,36 @@ const FingerprintAuth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-atm-background to-atm-accent/10">
-      <Card className="w-[380px] shadow-lg backdrop-blur-sm bg-white/90 border-atm-accent/20">
-        <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl font-bold text-atm-primary flex items-center justify-center gap-2">
-            {isRegistered ? <Lock className="w-6 h-6" /> : <Fingerprint className="w-6 h-6" />}
-            {isRegistered ? "Set Your PIN" : "Fingerprint Authentication"}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/50 dark:to-emerald-950/70 p-4">
+      <Card className="w-[420px] shadow-2xl border-emerald-200/50 dark:border-emerald-800/50 backdrop-blur-lg bg-white/80 dark:bg-emerald-950/60 transition-all duration-300 hover:shadow-emerald-300/50 dark:hover:shadow-emerald-800/50">
+        <CardHeader className="text-center space-y-3 pb-2">
+          <CardTitle className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-3 animate-fade-in">
+            {isRegistered ? <Lock className="w-8 h-8" /> : <Fingerprint className="w-8 h-8" />}
+            {isRegistered ? "Secure PIN" : "Biometric Access"}
           </CardTitle>
-          <CardDescription className="text-gray-600">
+          <CardDescription className="text-emerald-700/80 dark:text-emerald-300/80 text-base">
             {showPinInput
-              ? "Enter your PIN for verification"
+              ? "Confirm your 4-digit PIN"
               : isRegistered
-              ? "Place your finger to verify"
-              : "Register your fingerprint for secure access"}
+              ? "Verify your identity"
+              : "Register for secure access"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-6">
+        <CardContent className="space-y-6">
           {!isRegistered && !showPinInput && (
-            <div className="w-full space-y-4">
+            <div className="space-y-4 animate-fade-in">
               <div className="space-y-2">
-                <Label htmlFor="userName" className="flex items-center gap-2">
-                  <UserCircle2 className="w-4 h-4" />
+                <Label htmlFor="userName" className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                  <UserCircle2 className="w-5 h-5" />
                   Your Name
                 </Label>
                 <Input
                   id="userName"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="border-atm-accent/20 focus:border-atm-primary"
+                  placeholder="Enter your full name"
+                  className="border-emerald-300/50 focus:border-emerald-500 dark:border-emerald-700/50 dark:focus:border-emerald-600 
+                             transition-colors duration-300 placeholder-emerald-500/50 dark:placeholder-emerald-400/50"
                   required
                 />
               </div>
@@ -164,53 +165,64 @@ const FingerprintAuth = () => {
           {showPinInput ? (
             <PinInput 
               onPinSubmit={handlePinSubmit} 
-              isRegistration={isRegistered} 
+              isRegistration={!isRegistered} 
             />
           ) : (
-            <>
+            <div className="flex flex-col items-center space-y-6">
               <Button
                 variant="outline"
                 size="icon"
-                className={`w-24 h-24 rounded-full transition-all duration-300 hover:scale-105
-                  ${isVerifying ? 'animate-pulse bg-atm-accent' : ''}
-                  ${isRegistered ? 'bg-atm-primary text-white hover:bg-atm-secondary' : 'border-2 border-atm-accent/20'}
+                className={`w-28 h-28 rounded-full transition-all duration-500 group 
+                  ${isVerifying ? 'animate-pulse' : ''}
+                  border-emerald-300 hover:border-emerald-500
+                  bg-emerald-50 hover:bg-emerald-100 
+                  dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50
+                  dark:border-emerald-700 dark:hover:border-emerald-600
                 `}
                 onClick={() => handleFingerprint(isRegistered)}
                 disabled={!isRegistered && !userName}
               >
-                <Fingerprint className="w-12 h-12" />
+                <Fingerprint className="w-14 h-14 text-emerald-600 group-hover:text-emerald-700 dark:text-emerald-400 dark:group-hover:text-emerald-300 transition-colors" />
               </Button>
               
               {!isRegistered && (
                 <Button
                   variant="ghost"
                   onClick={handleVerification}
-                  className="mt-4 text-atm-primary hover:text-atm-secondary hover:bg-atm-accent/10"
+                  className="text-emerald-600 hover:text-emerald-800 
+                             dark:text-emerald-400 dark:hover:text-emerald-300 
+                             hover:bg-emerald-50 dark:hover:bg-emerald-900/30 
+                             transition-colors"
                 >
-                  Already registered? Verify your fingerprint
+                  Already registered? Verify Fingerprint
                 </Button>
               )}
-            </>
+            </div>
           )}
         </CardContent>
       </Card>
 
       <Dialog open={showVerificationDialog} onOpenChange={setShowVerificationDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white dark:bg-emerald-950/80 backdrop-blur-lg border-emerald-200 dark:border-emerald-800">
           <DialogHeader>
-            <DialogTitle>Fingerprint Verification Required</DialogTitle>
-            <DialogDescription>
-              Please verify your fingerprint to complete the authentication process.
+            <DialogTitle className="text-emerald-700 dark:text-emerald-400">Fingerprint Verification</DialogTitle>
+            <DialogDescription className="text-emerald-600 dark:text-emerald-300">
+              Please verify your fingerprint to complete authentication
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-6">
             <Button
               variant="outline"
               size="icon"
-              className="w-20 h-20 rounded-full transition-all duration-300 hover:scale-105"
+              className="w-24 h-24 rounded-full 
+                border-emerald-300 hover:border-emerald-500
+                bg-emerald-50 hover:bg-emerald-100 
+                dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50
+                dark:border-emerald-700 dark:hover:border-emerald-600
+                transition-all duration-300 hover:scale-105"
               onClick={() => handleFingerprint(true)}
             >
-              <Fingerprint className="w-10 h-10 text-atm-primary" />
+              <Fingerprint className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
             </Button>
           </div>
         </DialogContent>
