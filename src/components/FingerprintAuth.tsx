@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Fingerprint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Card,
   CardContent,
@@ -16,16 +17,39 @@ const FingerprintAuth = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const { toast } = useToast();
 
-  const handleFingerprint = () => {
-    setIsVerifying(true);
-    setTimeout(() => {
-      setIsVerifying(false);
+  const handleFingerprint = async () => {
+    try {
+      setIsVerifying(true);
+      
+      // Save fingerprint registration to Supabase
+      const { error } = await supabase
+        .from('finger')
+        .insert([
+          {
+            created_at: new Date().toISOString(),
+            pins: null // Initially set to null, can be updated later with PIN
+          }
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
       setIsRegistered(true);
       toast({
         title: "Fingerprint Registration Successful",
         description: "Your fingerprint has been securely registered.",
       });
-    }, 2000);
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: "Could not register fingerprint. Please try again.",
+        variant: "destructive",
+      });
+      console.error('Error registering fingerprint:', error);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   return (
