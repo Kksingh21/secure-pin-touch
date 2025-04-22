@@ -4,6 +4,7 @@ import { Fingerprint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import PinInput from './PinInput';
 import {
   Card,
   CardContent,
@@ -11,76 +12,172 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const FingerprintAuth = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [fingerprintId, setFingerprintId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleFingerprint = async () => {
+  const handleFingerprint = async (isVerification = false) => {
     try {
       setIsVerifying(true);
       
-      // Save fingerprint registration to Supabase
-      const { error } = await supabase
-        .from('finger')
-        .insert([
-          {
-            created_at: new Date().toISOString(),
-            pins: null // Initially set to null, can be updated later with PIN
-          }
-        ]);
+      if (isVerification) {
+        // Verify fingerprint
+        const { data, error } = await supabase
+          .from('finger')
+          .select('*')
+          .eq('fingerprint_id', fingerprintId)
+          .single();
 
-      if (error) {
-        throw error;
+        if (error || !data) {
+          throw new Error('Fingerprint not found');
+        }
+
+        setShowPinInput(true);
+      } else {
+        // Register new fingerprint
+        const newFingerprintId = crypto.randomUUID();
+        const { error } = await supabase
+          .from('finger')
+          .insert([
+            {
+              fingerprint_id: newFingerprintId,
+              user_name: userName,
+              created_at: new Date().toISOString(),
+            }
+          ]);
+
+        if (error) throw error;
+
+        setFingerprintId(newFingerprintId);
+        setIsRegistered(true);
+        setShowPinInput(true);
+        
+        toast({
+          title: "Fingerprint Registered",
+          description: "Now set your PIN for added security.",
+        });
       }
-
-      setIsRegistered(true);
-      toast({
-        title: "Fingerprint Registration Successful",
-        description: "Your fingerprint has been securely registered.",
-      });
     } catch (error) {
+      console.error('Error:', error);
       toast({
-        title: "Registration Failed",
-        description: "Could not register fingerprint. Please try again.",
+        title: isVerification ? "Verification Failed" : "Registration Failed",
+        description: "Please try again.",
         variant: "destructive",
       });
-      console.error('Error registering fingerprint:', error);
     } finally {
       setIsVerifying(false);
     }
   };
 
+  const handlePinSubmit = async (pin: string) => {
+    try {
+      if (!fingerprintId) throw new Error('No fingerprint ID');
+
+      const { error } = await supabase
+        .from('finger')
+        .update({ 
+          pins: pin,
+          is_verified: true 
+        })
+        .eq('fingerprint_id', fingerprintId);
+
+      if (error) throw error;
+
+      toast({
+        title: isRegistered ? "PIN Set Successfully" : "Verification Successful",
+        description: isRegistered 
+          ? "Your fingerprint and PIN have been registered" 
+          : "Your identity has been verified",
+      });
+
+      // Reset the form
+      setShowPinInput(false);
+      setUserName('');
+      setFingerprintId(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process PIN. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleVerification = () => {
+    setFingerprintId(prompt('Enter Fingerprint ID to verify:') || null);
+    if (fingerprintId) {
+      handleFingerprint(true);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-atm-background">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-atm-background to-atm-accent/10">
       <Card className="w-[380px] shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-atm-primary">
-            Fingerprint Authentication
+            {isRegistered ? "Set Your PIN" : "Fingerprint Authentication"}
           </CardTitle>
           <CardDescription>
-            {isRegistered
+            {showPinInput
+              ? "Enter your PIN for verification"
+              : isRegistered
               ? "Place your finger to verify"
               : "Register your fingerprint for secure access"}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-6">
-          <Button
-            variant="outline"
-            size="icon"
-            className={`w-24 h-24 rounded-full transition-all duration-300 ${
-              isVerifying ? 'animate-pulse bg-atm-accent' : ''
-            } ${isRegistered ? 'bg-atm-primary text-white hover:bg-atm-secondary' : ''}`}
-            onClick={handleFingerprint}
-          >
-            <Fingerprint className="w-12 h-12" />
-          </Button>
-          <p className="text-sm text-gray-500 text-center">
-            {isRegistered
-              ? "Your fingerprint is registered. You can now use it to verify your PIN."
-              : "Touch the sensor to register your fingerprint"}
-          </p>
+          {!isRegistered && !showPinInput && (
+            <div className="w-full space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="userName">Your Name</Label>
+                <Input
+                  id="userName"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Enter your name"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {showPinInput ? (
+            <PinInput 
+              onPinSubmit={handlePinSubmit} 
+              isRegistration={isRegistered} 
+            />
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                className={`w-24 h-24 rounded-full transition-all duration-300 ${
+                  isVerifying ? 'animate-pulse bg-atm-accent' : ''
+                } ${isRegistered ? 'bg-atm-primary text-white hover:bg-atm-secondary' : ''}`}
+                onClick={() => handleFingerprint(isRegistered)}
+                disabled={!isRegistered && !userName}
+              >
+                <Fingerprint className="w-12 h-12" />
+              </Button>
+              
+              {!isRegistered && (
+                <Button
+                  variant="ghost"
+                  onClick={handleVerification}
+                  className="mt-4"
+                >
+                  Already registered? Verify your fingerprint
+                </Button>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

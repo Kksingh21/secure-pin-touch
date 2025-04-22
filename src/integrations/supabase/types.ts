@@ -27,18 +27,27 @@ export type Database = {
       finger: {
         Row: {
           created_at: string
+          fingerprint_id: string
           id: number
+          is_verified: boolean | null
           pins: string | null
+          user_name: string | null
         }
         Insert: {
           created_at?: string
+          fingerprint_id?: string
           id?: number
+          is_verified?: boolean | null
           pins?: string | null
+          user_name?: string | null
         }
         Update: {
           created_at?: string
+          fingerprint_id?: string
           id?: number
+          is_verified?: boolean | null
           pins?: string | null
+          user_name?: string | null
         }
         Relationships: []
       }
