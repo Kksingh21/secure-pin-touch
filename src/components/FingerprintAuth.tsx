@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Fingerprint } from 'lucide-react';
+import { Fingerprint, Lock, UserCircle2, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const FingerprintAuth = () => {
   const [isRegistered, setIsRegistered] = useState(false);
@@ -21,6 +22,7 @@ const FingerprintAuth = () => {
   const [showPinInput, setShowPinInput] = useState(false);
   const [userName, setUserName] = useState('');
   const [fingerprintId, setFingerprintId] = useState<string | null>(null);
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const { toast } = useToast();
 
   const handleFingerprint = async (isVerification = false) => {
@@ -40,6 +42,7 @@ const FingerprintAuth = () => {
         }
 
         setShowPinInput(true);
+        setShowVerificationDialog(false);
       } else {
         // Register new fingerprint
         const newFingerprintId = crypto.randomUUID();
@@ -80,6 +83,12 @@ const FingerprintAuth = () => {
     try {
       if (!fingerprintId) throw new Error('No fingerprint ID');
 
+      if (!isRegistered) {
+        // If verifying, show fingerprint verification dialog
+        setShowVerificationDialog(true);
+        return;
+      }
+
       const { error } = await supabase
         .from('finger')
         .update({ 
@@ -91,16 +100,15 @@ const FingerprintAuth = () => {
       if (error) throw error;
 
       toast({
-        title: isRegistered ? "PIN Set Successfully" : "Verification Successful",
-        description: isRegistered 
-          ? "Your fingerprint and PIN have been registered" 
-          : "Your identity has been verified",
+        title: "PIN Set Successfully",
+        description: "Your fingerprint and PIN have been registered",
       });
 
       // Reset the form
       setShowPinInput(false);
       setUserName('');
       setFingerprintId(null);
+      setIsRegistered(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -119,12 +127,13 @@ const FingerprintAuth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-atm-background to-atm-accent/10">
-      <Card className="w-[380px] shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-atm-primary">
+      <Card className="w-[380px] shadow-lg backdrop-blur-sm bg-white/90 border-atm-accent/20">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl font-bold text-atm-primary flex items-center justify-center gap-2">
+            {isRegistered ? <Lock className="w-6 h-6" /> : <Fingerprint className="w-6 h-6" />}
             {isRegistered ? "Set Your PIN" : "Fingerprint Authentication"}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-600">
             {showPinInput
               ? "Enter your PIN for verification"
               : isRegistered
@@ -136,12 +145,16 @@ const FingerprintAuth = () => {
           {!isRegistered && !showPinInput && (
             <div className="w-full space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="userName">Your Name</Label>
+                <Label htmlFor="userName" className="flex items-center gap-2">
+                  <UserCircle2 className="w-4 h-4" />
+                  Your Name
+                </Label>
                 <Input
                   id="userName"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   placeholder="Enter your name"
+                  className="border-atm-accent/20 focus:border-atm-primary"
                   required
                 />
               </div>
@@ -158,9 +171,10 @@ const FingerprintAuth = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className={`w-24 h-24 rounded-full transition-all duration-300 ${
-                  isVerifying ? 'animate-pulse bg-atm-accent' : ''
-                } ${isRegistered ? 'bg-atm-primary text-white hover:bg-atm-secondary' : ''}`}
+                className={`w-24 h-24 rounded-full transition-all duration-300 hover:scale-105
+                  ${isVerifying ? 'animate-pulse bg-atm-accent' : ''}
+                  ${isRegistered ? 'bg-atm-primary text-white hover:bg-atm-secondary' : 'border-2 border-atm-accent/20'}
+                `}
                 onClick={() => handleFingerprint(isRegistered)}
                 disabled={!isRegistered && !userName}
               >
@@ -171,7 +185,7 @@ const FingerprintAuth = () => {
                 <Button
                   variant="ghost"
                   onClick={handleVerification}
-                  className="mt-4"
+                  className="mt-4 text-atm-primary hover:text-atm-secondary hover:bg-atm-accent/10"
                 >
                   Already registered? Verify your fingerprint
                 </Button>
@@ -180,6 +194,27 @@ const FingerprintAuth = () => {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={showVerificationDialog} onOpenChange={setShowVerificationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Fingerprint Verification Required</DialogTitle>
+            <DialogDescription>
+              Please verify your fingerprint to complete the authentication process.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-6">
+            <Button
+              variant="outline"
+              size="icon"
+              className="w-20 h-20 rounded-full transition-all duration-300 hover:scale-105"
+              onClick={() => handleFingerprint(true)}
+            >
+              <Fingerprint className="w-10 h-10 text-atm-primary" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
