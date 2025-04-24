@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Fingerprint, Lock, UserCircle2, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -126,8 +125,19 @@ const FingerprintAuth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/50 dark:to-emerald-950/70 p-4">
-      <Card className="w-[420px] shadow-2xl border-emerald-200/50 dark:border-emerald-800/50 backdrop-blur-lg bg-white/80 dark:bg-emerald-950/60 transition-all duration-300 hover:shadow-emerald-300/50 dark:hover:shadow-emerald-800/50">
+    <div 
+      className="min-h-screen flex items-center justify-center relative bg-cover bg-center bg-no-repeat" 
+      style={{
+        backgroundImage: `
+          linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+          url(https://images.unsplash.com/photo-1531297484001-80022131f5a1)
+        `,
+        backgroundBlendMode: 'overlay'
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-emerald-900/40 dark:from-emerald-900/50 dark:to-emerald-950/70 opacity-90" />
+      
+      <Card className="w-[420px] relative z-10 shadow-2xl border-emerald-200/50 dark:border-emerald-800/50 backdrop-blur-xl bg-white/60 dark:bg-emerald-950/70 transition-all duration-300 hover:shadow-emerald-300/50 dark:hover:shadow-emerald-800/50">
         <CardHeader className="text-center space-y-3 pb-2">
           <CardTitle className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-3 animate-fade-in">
             {isRegistered ? <Lock className="w-8 h-8" /> : <Fingerprint className="w-8 h-8" />}
