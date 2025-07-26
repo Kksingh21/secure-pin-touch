@@ -1,73 +1,88 @@
-# Welcome to your Lovable project
+# Secure Pin Touch
 
-## Project info
+Secure Pin Touch is a modern web application focused on secure user authentication using fingerprint recognition and PIN codes. The project leverages a robust tech stack to provide a seamless and safe experience for users.
 
-**URL**: https://lovable.dev/projects/e2d3a2b3-03c4-4dfa-8438-6d39ea856fe0
+## Overview
 
-## How can I edit this code?
+This application allows users to register and authenticate using biometric (fingerprint) data along with a PIN code for enhanced security. The backend integration is handled via Supabase, ensuring secure storage and verification of user credentials. The user interface is built with React and styled using Tailwind CSS and shadcn-ui components for a responsive and intuitive experience.
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- **Fingerprint Authentication**: Users can register their fingerprint and authenticate with it. This adds a biometric layer to security.
+- **PIN Code Verification**: For additional security, users must enter a PIN code associated with their fingerprint.
+- **User Registration & Management**: The app supports creating new users, linking them to their fingerprint and PIN, and managing their authentication status.
+- **Responsive UI**: Built with Vite, React, and shadcn-ui, ensuring fast load times and a smooth user experience.
+- **Supabase Integration**: Handles all database and authentication operations, making the app scalable and secure.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e2d3a2b3-03c4-4dfa-8438-6d39ea856fe0) and start prompting.
+## Technologies Used
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Vite**: Fast build tool and development server.
+- **TypeScript**: Type-safe, modern JavaScript development.
+- **React**: UI library for building interactive user interfaces.
+- **shadcn-ui**: A set of modern UI components.
+- **Tailwind CSS**: Utility-first CSS framework for rapid styling.
+- **Supabase**: Backend-as-a-Service for authentication and database.
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- [Node.js & npm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Step 1: Clone the repository
+git clone https://github.com/Kksingh21/secure-pin-touch.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd secure-pin-touch
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Editing Code
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+You can edit this project in several ways:
 
-**Use GitHub Codespaces**
+- **Locally in your IDE**: Clone and push changes.
+- **GitHub Web Editor**: Edit files directly on GitHub.
+- **GitHub Codespaces**: Launch a cloud development environment instantly.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Deployment
 
-## What technologies are used for this project?
+1. Build the project for production:
+    ```sh
+    npm run build
+    ```
+2. Deploy the output (typically in the `dist` folder) to your preferred static host (e.g., Vercel, Netlify, GitHub Pages).
 
-This project is built with:
+## Custom Domains
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+To connect a custom domain, follow your hosting provider’s guide for domain setup.
 
-## How can I deploy this project?
+## File Structure Highlights
 
-Simply open [Lovable](https://lovable.dev/projects/e2d3a2b3-03c4-4dfa-8438-6d39ea856fe0) and click on Share -> Publish.
+- `src/components/`: Contains all major UI components, such as fingerprint authentication, PIN input, and reusable UI elements (e.g., carousel, scroll area, pagination, breadcrumb).
+- `src/integrations/supabase/`: Contains Supabase client and type definitions for database interactions.
+- `index.html`: The main HTML entry point for the app.
+- `vite.config.ts`: Configuration for the Vite build tool.
+- `tailwind.config.js`: Tailwind CSS configuration (if present).
 
-## Can I connect a custom domain to my Lovable project?
+## How It Works
 
-Yes, you can!
+1. **User Registration**: The user enters their username and registers their fingerprint and PIN.
+2. **Authentication**: On login, the app verifies the fingerprint and prompts for the PIN, matching both against Supabase records.
+3. **Security**: Biometric and PIN data are never stored in plain text, and all operations are securely handled via Supabase.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project currently does not specify a license.
+
+---
+
+Feel free to contribute, raise issues, or suggest improvements!
